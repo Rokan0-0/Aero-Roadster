@@ -23,12 +23,12 @@ window.UIController = (function () {
   let bestDist = parseInt(localStorage.getItem('tessa_best_dist') || '0', 10);
 
   // DOM Elements
-  let lobbyScreen, playDashBtn, parkingModeBtn, garageBtn, leaderboardBtn, settingsBtn, aboutBtn;
+  let lobbyScreen, playDashBtn, parkingModeBtn, garageBtn, leaderboardBtn, settingsBtn, aboutBtn, autoDemoBtn;
   let hudEl, touchControlsEl;
   let pauseBtn, pauseModal, pauseResumeBtn, pauseRestartBtn, pauseQuitBtn;
   let scoreEl, streakMultEl, streakCountEl, streakFillEl, pendingEl, stuntFeedEl;
   let speedNumEl, aeroStatusEl, airBarInner, fuelPctEl, fxOverlay;
-  let gfxBtn, recenterBtn, conceptBtn, conceptBanner, conceptTitle, conceptDesc;
+  let gfxBtn, recenterBtn, conceptBtn, conceptBanner, conceptTitle, conceptDesc, autopilotBtn, autopilotBanner;
   let distEl, hullFillEl, hullPctEl, itemBadgeEl, muteBtn;
   let gameOverModal, goDistEl, goScoreEl, goBestDistEl, goBestScoreEl, retryBtn, goLobbyBtn;
   let parkingHudPill;
@@ -146,10 +146,30 @@ window.UIController = (function () {
     conceptBanner = document.getElementById('concept-banner');
     conceptTitle = document.getElementById('concept-title');
     conceptDesc = document.getElementById('concept-desc');
+    autopilotBtn = document.getElementById('autopilot-btn');
+    autopilotBanner = document.getElementById('autopilot-banner');
+    autoDemoBtn = document.getElementById('auto-demo-btn');
 
     // ------------------------------------------------------------------------
     // EVENT BINDINGS
     // ------------------------------------------------------------------------
+
+    // Autopilot Toggle Button
+    if (autopilotBtn) {
+      autopilotBtn.addEventListener('click', toggleAutopilot);
+    }
+
+    // AI Autopilot Demo Run (Lobby Button)
+    if (autoDemoBtn) {
+      autoDemoBtn.addEventListener('click', () => {
+        if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+        if (window.AutopilotAI) window.AutopilotAI.setEnabled(true);
+        updateAutopilotUI();
+        hideLevelSelect();
+        hideGarage();
+        window.GameState.set(window.GameState.STATES.PLAYING_DASH);
+      });
+    }
 
     // Play Dash Mode
     if (playDashBtn) {
@@ -298,6 +318,9 @@ window.UIController = (function () {
         window.SoundFX.toggleMute();
         updateMuteBtn();
       }
+      if (e.code === 'KeyU' || e.code === 'KeyJ') {
+        toggleAutopilot();
+      }
     });
 
     // Graphics Tier Button
@@ -394,6 +417,28 @@ window.UIController = (function () {
     const topScorePanel = document.getElementById('top-score-panel');
     if (topScorePanel) {
       topScorePanel.style.display = isParking ? 'none' : 'block';
+    }
+
+    updateAutopilotUI();
+  }
+
+  function toggleAutopilot() {
+    if (window.AutopilotAI) {
+      window.AutopilotAI.toggle();
+      updateAutopilotUI();
+      showToast(window.AutopilotAI.isEnabled() ? '🤖 Autopilot: ON' : '🤖 Autopilot: OFF');
+    }
+  }
+
+  function updateAutopilotUI() {
+    const isAuto = window.AutopilotAI ? window.AutopilotAI.isEnabled() : false;
+    if (autopilotBtn) {
+      autopilotBtn.textContent = isAuto ? '🤖 Auto: ON' : '🤖 Auto: OFF';
+      if (isAuto) autopilotBtn.classList.add('active');
+      else autopilotBtn.classList.remove('active');
+    }
+    if (autopilotBanner) {
+      autopilotBanner.style.display = isAuto ? 'block' : 'none';
     }
   }
 

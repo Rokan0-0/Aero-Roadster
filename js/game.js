@@ -260,7 +260,15 @@ window.GameEngine = (function () {
     // 3. PLAYING PARKING MODE (LEVELS 1–6)
     // =========================================================================
     if (currentState === window.GameState.STATES.PLAYING_PARKING) {
-      const input = window.InputController.getInput();
+      let input = window.InputController.getInput();
+      if (window.AutopilotAI && window.AutopilotAI.isEnabled()) {
+        const aiIn = window.AutopilotAI.getParkingInput(
+          window.ParkingEngine.getState(),
+          window.LevelManager.getCurrentLevelData(),
+          dt
+        );
+        if (aiIn) input = aiIn;
+      }
       window.ParkingEngine.update(dt, input, onParkingSuccess, (health) => {
         triggerShake(0.6);
       });
@@ -328,7 +336,16 @@ window.GameEngine = (function () {
     // =========================================================================
     // 4. PLAYING DASH MODE (HIGH-SPEED ENDLESS HIGHWAY)
     // =========================================================================
-    const input = window.InputController.getInput();
+    let input = window.InputController.getInput();
+    if (window.AutopilotAI && window.AutopilotAI.isEnabled()) {
+      const aiIn = window.AutopilotAI.getDashInput(
+        state,
+        window.TrafficSystem.getVehicles ? window.TrafficSystem.getVehicles() : [],
+        window.ItemSystem.getItems ? window.ItemSystem.getItems() : [],
+        dt
+      );
+      if (aiIn) input = aiIn;
+    }
     const conceptMode = window.UIController.getConceptMode();
     const qualityTier = window.UIController.getQualityTier();
     const curvePhase = state.distanceZ * 0.008;

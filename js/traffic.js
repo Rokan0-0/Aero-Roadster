@@ -134,6 +134,7 @@ window.TrafficSystem = (function () {
   return {
     init,
     update,
-    reset
+    reset,
+    getVehicles: () => trafficCars
   };
 })();

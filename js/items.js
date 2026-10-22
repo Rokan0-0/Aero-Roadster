@@ -154,6 +154,7 @@ window.ItemSystem = (function () {
   return {
     init,
     update,
-    reset
+    reset,
+    getItems: () => activeItems
   };
 })();

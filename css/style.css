@@ -523,6 +523,40 @@ html, body {
   backdrop-filter: blur(8px);
 }
 
+#autopilot-btn.active {
+  background: linear-gradient(90deg, #00e676, #00b0ff);
+  color: #061e12;
+  border-color: #ffffff;
+  box-shadow: 0 0 14px rgba(0, 230, 118, 0.6);
+  font-weight: 900;
+}
+
+#autopilot-banner {
+  position: absolute;
+  top: 56px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(14, 25, 20, 0.9);
+  border: 1.5px solid #00e676;
+  color: #a7ffeb;
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  display: none;
+  pointer-events: none;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 0 20px rgba(0, 230, 118, 0.45);
+  animation: pulse-autopilot 2s infinite ease-in-out;
+}
+
+@keyframes pulse-autopilot {
+  0%, 100% { opacity: 0.85; transform: translateX(-50%) scale(1); }
+  50% { opacity: 1; transform: translateX(-50%) scale(1.03); }
+}
+
 #concept-banner h4 {
   color: #ffbe3b;
   font-size: 12px;
