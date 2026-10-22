@@ -36,9 +36,9 @@
         <small>ENDLESS RUN</small>
       </button>
 
-      <button class="lobby-btn-secondary" id="parking-mode-btn">
-        <span>Thruster Parking</span>
-        <small>LEVELS 1–6</small>
+      <button class="lobby-btn-secondary parking-dev-btn" id="parking-mode-btn">
+        <span>Thruster Parking <span class="dev-badge">DEV</span></span>
+        <small>🚧 UNDER DEVELOPMENT</small>
       </button>
 
       <button class="lobby-btn-secondary" id="garage-btn">
@@ -228,6 +228,9 @@
   <div id="level-select-modal">
     <div class="level-select-card">
       <h2>Select Parking Level</h2>
+      <div class="dev-preview-notice">
+        <span>🚧</span> Under Development: Thruster parking is experimental early preview.
+      </div>
       <div class="level-grid" id="level-grid"></div>
       <button class="pause-btn danger" id="level-select-close-btn" style="width: 100%; margin-top: 6px;">Back to Lobby</button>
     </div>

@@ -49,7 +49,7 @@ window.ParticleSystem = (function () {
     p.maxLife = maxLife;
     p.scale = baseScale;
     p.sprite.scale.set(baseScale, baseScale, 1);
-    p.sprite.material.opacity = 0.9;
+    p.sprite.material.opacity = 0.45;
     p.sprite.visible = true;
   }
 
@@ -66,9 +66,9 @@ window.ParticleSystem = (function () {
 
       p.sprite.position.addScaledVector(p.vel, dt);
       const ratio = 1 - p.life / p.maxLife;
-      const s = p.scale * (1 + ratio * 2.4);
+      const s = p.scale * (1 + ratio * 1.5);
       p.sprite.scale.set(s, s, 1);
-      p.sprite.material.opacity = (1 - ratio) * 0.85;
+      p.sprite.material.opacity = (1 - ratio) * 0.45;
     }
   }
 

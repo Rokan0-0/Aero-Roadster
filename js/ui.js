@@ -791,7 +791,7 @@ window.UIController = (function () {
       }
     }
 
-    if (fxOverlay) fxOverlay.style.opacity = usingBoost ? '0.95' : '0.35';
+    if (fxOverlay) fxOverlay.style.opacity = usingBoost ? '0.22' : '0.06';
   }
 
   function showGameOver() {

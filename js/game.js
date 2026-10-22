@@ -475,8 +475,16 @@ window.GameEngine = (function () {
           state.airborne = true;
           triggerShake(0.15);
         } else {
-          state.vy += phys.airContinuousThrust * dt;
-          state.vy = Math.min(state.vy, phys.maxAirVelocityY);
+          // Soft ceiling: as car approaches 18m, cold-gas thruster lift tapers off smoothly
+          const ceiling = 18.0;
+          const heightRatio = Math.max(0, Math.min(1, state.y / ceiling));
+          const liftMult = Math.max(0, 1 - Math.pow(heightRatio, 2));
+          state.vy += phys.airContinuousThrust * liftMult * dt;
+          if (state.y >= ceiling) {
+            state.y = ceiling;
+            if (state.vy > 0) state.vy *= 0.35;
+          }
+          state.vy = Math.min(state.vy, phys.maxAirVelocityY * Math.max(0.15, 1 - heightRatio));
         }
       }
 
@@ -556,30 +564,30 @@ window.GameEngine = (function () {
       const thrusterOn = usingBoost || usingLift;
       window.PlayerCar.setThrusterIntensity(thrusterOn ? 2.4 : 0.0);
 
-      const pCount = qualityTier === 'MOBILE' ? 2 : 4;
+      const pCount = qualityTier === 'MOBILE' ? 2 : 3;
       if (usingBoost) {
         for (let i = 0; i < pCount; i++) {
-          tmpVec.set((Math.random() - 0.5) * 1.2, 0.72, 2.55).applyMatrix4(carVisual.matrixWorld);
+          tmpVec.set((Math.random() - 0.5) * 0.8, 0.45, 2.3).applyMatrix4(carVisual.matrixWorld);
           window.ParticleSystem.spawnCondensation(
             tmpVec,
-            (Math.random() - 0.5) * 4,
-            (Math.random() - 0.3) * 2.5,
-            32 + Math.random() * 14,
-            1.1 + Math.random() * 0.7,
-            0.42
+            (Math.random() - 0.5) * 3,
+            -1.5 + (Math.random() - 0.5) * 1.5,
+            16 + Math.random() * 8,
+            0.65 + Math.random() * 0.35,
+            0.24
           );
         }
       }
       if (usingLift) {
         for (let i = 0; i < pCount; i++) {
-          tmpVec.set((Math.random() - 0.5) * 1.6, 0.2, (Math.random() - 0.5) * 2.6).applyMatrix4(carVisual.matrixWorld);
+          tmpVec.set((Math.random() - 0.5) * 1.2, 0.2, (Math.random() - 0.5) * 2.0).applyMatrix4(carVisual.matrixWorld);
           window.ParticleSystem.spawnCondensation(
             tmpVec,
-            (Math.random() - 0.5) * 6,
-            -18 - Math.random() * 8,
-            12 + Math.random() * 8,
-            1.35 + Math.random() * 0.6,
-            0.48
+            (Math.random() - 0.5) * 4,
+            -15 - Math.random() * 6,
+            8 + Math.random() * 6,
+            0.7 + Math.random() * 0.3,
+            0.25
           );
         }
       }
@@ -600,23 +608,35 @@ window.GameEngine = (function () {
       );
 
       if (speedLinesEl) {
-        speedLinesEl.style.opacity = isFever ? '0.85' : (usingBoost ? '0.6' : '0');
+        speedLinesEl.style.opacity = isFever ? '0.45' : (usingBoost ? '0.22' : '0');
       }
+
+      // Dynamic altitude camera zoom & pull-back
+      const alt = Math.max(0, state.y);
+      const altZoom = Math.min(alt, 18.0);
+      const camTargetDistZ = camConf.followDistanceZ + altZoom * 0.42;
+      const camTargetY = THREE.MathUtils.lerp(camera.position.y, camConf.baseHeight + alt * 0.65 + altZoom * 0.25, dt * 7.0) + shakeY;
+      const camTargetX = THREE.MathUtils.lerp(camera.position.x, state.lateralX * 0.76, dt * 7.5) + shakeX;
 
       let targetFov = camConf.defaultFov;
       if (isFever) targetFov = camConf.feverFov;
       else if (usingBoost) targetFov = camConf.boostFov;
+      // Smooth panoramic zoom-out as you fly higher
+      targetFov += Math.min(10, altZoom * 0.55);
 
       camera.fov = THREE.MathUtils.lerp(camera.fov, targetFov, dt * camConf.fovLerp);
       camera.updateProjectionMatrix();
 
-      const shakeX = Math.sin(Date.now() * 0.035) * state.cameraShake * 0.35;
-      const shakeY = Math.cos(Date.now() * 0.028) * state.cameraShake * 0.35;
+      camera.position.set(
+        camTargetX,
+        camTargetY,
+        THREE.MathUtils.lerp(camera.position.z, camTargetDistZ, dt * 6.0)
+      );
 
-      const camTargetX = THREE.MathUtils.lerp(camera.position.x, state.lateralX * 0.78, dt * 7.5) + shakeX;
-      const camTargetY = THREE.MathUtils.lerp(camera.position.y, camConf.baseHeight + state.y * 0.55, dt * 7.5) + shakeY;
-      camera.position.set(camTargetX, camTargetY, camConf.followDistanceZ);
-      camera.lookAt(state.lateralX * 0.6, 1.3 + state.y * 0.35, -28);
+      // Angled lookAt so road surface, upcoming curves and traffic remain framed below
+      const lookTargetY = Math.max(1.2, alt * 0.5);
+      const lookTargetZ = -26 - altZoom * 0.4;
+      camera.lookAt(state.lateralX * 0.55, lookTargetY, lookTargetZ);
     }
 
     // Traffic Simulation & Proximity Detection

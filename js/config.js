@@ -132,14 +132,14 @@ window.GameConfig = {
   // CAMERA BEHAVIOR & SHAKE
   // --------------------------------------------------------------------------
   camera: {
-    defaultFov: 62,
-    boostFov: 74,
+    defaultFov: 68,
+    boostFov: 76,
     feverFov: 82,
     fovLerp: 5.0,
-    followDistanceZ: 8.8,
+    followDistanceZ: 9.6,
     camTargetXLerp: 7.0,
     camTargetYLerp: 7.0,
-    baseHeight: 3.15,
+    baseHeight: 3.25,
   },
 
   // --------------------------------------------------------------------------

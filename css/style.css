@@ -31,9 +31,9 @@ html, body {
   inset: 0;
   pointer-events: none;
   z-index: 2;
-  background: radial-gradient(circle at center, transparent 50%, rgba(255, 95, 155, 0.25) 100%);
-  transition: opacity 0.2s ease;
-  opacity: 0.35;
+  background: radial-gradient(circle at center, transparent 65%, rgba(255, 75, 130, 0.22) 100%);
+  transition: opacity 0.25s ease;
+  opacity: 0.06;
 }
 
 /* Hyper-Speed Warp Lines during Rocket Fever / Boost */
@@ -43,7 +43,9 @@ html, body {
   pointer-events: none;
   z-index: 3;
   opacity: 0;
-  background: repeating-radial-gradient(circle at center, transparent 0, transparent 40px, rgba(255, 255, 255, 0.08) 42px, transparent 46px);
+  background: repeating-radial-gradient(circle at center, transparent 0, transparent 40px, rgba(255, 255, 255, 0.04) 42px, transparent 46px);
+  mask-image: radial-gradient(circle at center, transparent 38%, black 78%);
+  -webkit-mask-image: radial-gradient(circle at center, transparent 38%, black 78%);
   transition: opacity 0.2s ease;
 }
 
@@ -391,8 +393,8 @@ html, body {
    ========================================================================= */
 #top-left-bar {
   position: absolute;
-  top: 12px;
-  left: 16px;
+  top: calc(12px + env(safe-area-inset-top, 0px));
+  left: calc(16px + env(safe-area-inset-left, 0px));
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -470,8 +472,8 @@ html, body {
    ========================================================================= */
 #top-right-controls {
   position: absolute;
-  top: 12px;
-  right: 16px;
+  top: calc(12px + env(safe-area-inset-top, 0px));
+  right: calc(16px + env(safe-area-inset-right, 0px));
   display: flex;
   gap: 6px;
   pointer-events: auto;
@@ -575,7 +577,7 @@ html, body {
    ========================================================================= */
 #bottom-air-bar-container {
   position: absolute;
-  bottom: 12px;
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
   left: 50%;
   transform: translateX(-50%);
   width: min(44vw, 390px);
@@ -814,8 +816,8 @@ html, body {
 
 #left-pad {
   position: absolute;
-  left: 16px;
-  bottom: 16px;
+  left: calc(16px + env(safe-area-inset-left, 0px));
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
   width: 146px;
   height: 146px;
   border-radius: 50%;
@@ -861,8 +863,8 @@ html, body {
 
 #right-cluster {
   position: absolute;
-  right: 16px;
-  bottom: 16px;
+  right: calc(16px + env(safe-area-inset-right, 0px));
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
   width: 186px;
   height: 156px;
   pointer-events: none;
@@ -1307,6 +1309,216 @@ html, body {
 .garage-actions {
   display: flex;
   gap: 10px;
+}
+
+/* =========================================================================
+   PARKING MODE DEV STATUS & PREVIEW NOTICES
+   ========================================================================= */
+.dev-badge {
+  display: inline-block;
+  font-size: 8px;
+  font-weight: 900;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(255, 170, 0, 0.25);
+  border: 1px solid #ffaa00;
+  color: #ffaa00;
+  vertical-align: middle;
+  margin-left: 6px;
+  letter-spacing: 1px;
+}
+
+.parking-dev-btn {
+  border-color: rgba(255, 170, 0, 0.5) !important;
+}
+
+.parking-dev-btn:hover {
+  border-color: #ffaa00 !important;
+  box-shadow: 0 0 16px rgba(255, 170, 0, 0.4);
+}
+
+.dev-preview-notice {
+  background: rgba(255, 170, 0, 0.12);
+  border: 1px solid rgba(255, 170, 0, 0.4);
+  color: #ffd280;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-align: center;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* =========================================================================
+   MOBILE WIDESCREEN & LANDSCAPE RESPONSIVE UI ADJUSTMENTS
+   ========================================================================= */
+@media screen and (max-height: 520px), screen and (max-width: 840px) {
+  /* Hide keyboard controls hint on mobile/touch screens to keep lower center clear */
+  #controls-hint {
+    display: none !important;
+  }
+
+  /* Compact top-left telemetry */
+  #top-left-bar {
+    top: calc(8px + env(safe-area-inset-top, 0px));
+    left: calc(10px + env(safe-area-inset-left, 0px));
+    gap: 2px;
+  }
+  #speed-readout {
+    font-size: 16px;
+  }
+  #speed-readout small {
+    font-size: 9px;
+  }
+  #distance-readout {
+    font-size: 11px;
+  }
+  #hull-bar-wrap {
+    width: 105px;
+  }
+  #aero-status {
+    font-size: 8px;
+  }
+
+  /* Compact center score panel so it never collides with top controls */
+  #top-score-panel {
+    top: calc(6px + env(safe-area-inset-top, 0px));
+    min-width: unset;
+    width: auto;
+    max-width: 180px;
+  }
+  #score-value {
+    font-size: 22px;
+  }
+  #streak-row {
+    font-size: 9px;
+    letter-spacing: 1px;
+  }
+  #streak-bar-wrap {
+    width: 120px;
+    height: 4px;
+  }
+  #pending-points {
+    font-size: 10px;
+    min-height: 12px;
+  }
+  .stunt-popup {
+    font-size: 10px;
+    padding: 2px 8px;
+  }
+
+  /* Compact top-right control buttons */
+  #top-right-controls {
+    top: calc(8px + env(safe-area-inset-top, 0px));
+    right: calc(10px + env(safe-area-inset-right, 0px));
+    gap: 4px;
+  }
+  .hud-btn {
+    padding: 4px 6px;
+    font-size: 9px;
+    border-radius: 6px;
+    letter-spacing: 0.4px;
+  }
+
+  /* Compact bottom thruster bar */
+  #bottom-air-bar-container {
+    bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+    width: min(34vw, 240px);
+  }
+  .air-header {
+    font-size: 8px;
+    letter-spacing: 1px;
+  }
+  #air-bar-outer {
+    height: 7px;
+  }
+
+  /* Touch controls thumb placement and scaling */
+  #left-pad {
+    left: calc(12px + env(safe-area-inset-left, 0px));
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    width: 128px;
+    height: 128px;
+  }
+  #stick-nub {
+    width: 42px;
+    height: 42px;
+  }
+  #left-pad-label {
+    font-size: 8px;
+    top: 8px;
+  }
+
+  #right-cluster {
+    right: calc(12px + env(safe-area-inset-right, 0px));
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    width: 160px;
+    height: 136px;
+  }
+  #btn-boost {
+    width: 72px;
+    height: 72px;
+    font-size: 11px;
+    right: 0;
+    bottom: 4px;
+  }
+  #btn-lift {
+    width: 64px;
+    height: 64px;
+    font-size: 10px;
+    left: 8px;
+    top: 2px;
+  }
+  #btn-slam {
+    width: 52px;
+    height: 52px;
+    font-size: 9px;
+    left: 4px;
+    bottom: 2px;
+  }
+  .action-btn small {
+    font-size: 7px;
+  }
+
+  /* Compact lobby layout on small mobile landscape */
+  #lobby-screen {
+    padding: calc(16px + env(safe-area-inset-top, 0px)) calc(20px + env(safe-area-inset-right, 0px)) calc(14px + env(safe-area-inset-bottom, 0px)) calc(20px + env(safe-area-inset-left, 0px));
+  }
+  .lobby-left {
+    max-width: 270px;
+    gap: 8px;
+  }
+  .lobby-brand h1 {
+    font-size: 26px;
+    line-height: 0.95;
+  }
+  .lobby-btn-primary, .lobby-btn-secondary {
+    padding: 9px 16px;
+  }
+  .lobby-btn-primary span, .lobby-btn-secondary span {
+    font-size: 13px;
+  }
+  .lobby-btn-primary small, .lobby-btn-secondary small {
+    font-size: 8px;
+  }
+  .lobby-menu-row {
+    gap: 6px;
+  }
+  .lobby-btn-ghost {
+    padding: 6px 12px;
+    font-size: 10px;
+  }
+}
+
+@media screen and (max-width: 740px) {
+  #recenter-btn, #concept-cam-btn {
+    display: none !important;
+  }
 }
 
 
