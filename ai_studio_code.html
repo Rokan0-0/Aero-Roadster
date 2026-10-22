@@ -144,9 +144,22 @@
   <div id="pause-modal">
     <div class="pause-card">
       <h2>Game Paused</h2>
-      <button class="pause-btn primary" id="pause-resume-btn">Resume</button>
-      <button class="pause-btn" id="pause-restart-btn">Restart Run</button>
-      <button class="pause-btn danger" id="pause-quit-btn">Quit to Lobby</button>
+      <div class="pause-subtitle">QUICK SETTINGS & CONTROLS</div>
+
+      <div class="pause-settings-grid">
+        <button class="pause-setting-btn" id="pause-mute-btn">🔊 Audio: ON</button>
+        <button class="pause-setting-btn" id="pause-gfx-btn">✨ GFX: HIGH</button>
+        <button class="pause-setting-btn" id="pause-autopilot-btn">🤖 AI Auto: OFF</button>
+        <button class="pause-setting-btn" id="pause-recenter-btn">🎯 Recenter</button>
+        <button class="pause-setting-btn" id="pause-concept-btn">📷 Concept Cam</button>
+        <button class="pause-setting-btn" id="pause-fs-btn">⛶ Fullscreen</button>
+      </div>
+
+      <div class="pause-actions-stack">
+        <button class="pause-btn primary" id="pause-resume-btn">▶ Resume Run</button>
+        <button class="pause-btn" id="pause-restart-btn">🔄 Restart Run</button>
+        <button class="pause-btn danger" id="pause-quit-btn">🚪 Quit to Lobby</button>
+      </div>
     </div>
   </div>
 
@@ -223,16 +236,22 @@
   </div>
 
   <!-- =====================================================================
-       7. LEVEL SELECT MODAL (PARKING MODE)
+       7. PARKING MODE: NOT READY / UNDER DEVELOPMENT MODAL
        ===================================================================== -->
-  <div id="level-select-modal">
-    <div class="level-select-card">
-      <h2>Select Parking Level</h2>
-      <div class="dev-preview-notice">
-        <span>🚧</span> Under Development: Thruster parking is experimental early preview.
+  <div id="parking-dev-modal">
+    <div class="parking-dev-card">
+      <div class="dev-modal-icon">🚧</div>
+      <h2>Thruster Parking</h2>
+      <div class="dev-modal-tag">MODE CURRENTLY NOT READY</div>
+      <p>
+        Thruster parking physics, flight alignment sensors, and obstacle landing pads are currently under active development.
+      </p>
+      <div class="dev-modal-status-box">
+        <div class="dev-status-row"><span>Status:</span><strong style="color: #ffaa00;">Under Development</strong></div>
+        <div class="dev-status-row"><span>Available:</span><strong style="color: #00e676;">Endless Dash (100% Ready)</strong></div>
       </div>
-      <div class="level-grid" id="level-grid"></div>
-      <button class="pause-btn danger" id="level-select-close-btn" style="width: 100%; margin-top: 6px;">Back to Lobby</button>
+      <button class="pause-btn primary" id="parking-dev-play-btn" style="width: 100%; margin-top: 6px;">Play Endless Dash</button>
+      <button class="pause-btn danger" id="parking-dev-close-btn" style="width: 100%; margin-top: 8px;">Back to Lobby</button>
     </div>
   </div>
 

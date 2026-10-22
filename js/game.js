@@ -611,6 +611,9 @@ window.GameEngine = (function () {
         speedLinesEl.style.opacity = isFever ? '0.45' : (usingBoost ? '0.22' : '0');
       }
 
+      const shakeX = Math.sin(Date.now() * 0.035) * state.cameraShake * 0.35;
+      const shakeY = Math.cos(Date.now() * 0.028) * state.cameraShake * 0.35;
+
       // Dynamic altitude camera zoom & pull-back
       const alt = Math.max(0, state.y);
       const altZoom = Math.min(alt, 18.0);

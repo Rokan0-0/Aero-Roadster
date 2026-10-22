@@ -32,6 +32,8 @@ window.UIController = (function () {
   let distEl, hullFillEl, hullPctEl, itemBadgeEl, muteBtn;
   let gameOverModal, goDistEl, goScoreEl, goBestDistEl, goBestScoreEl, retryBtn, goLobbyBtn;
   let parkingHudPill;
+  let parkingDevModal, parkingDevCloseBtn, parkingDevPlayBtn;
+  let pauseMuteBtn, pauseGfxBtn, pauseAutopilotBtn, pauseRecenterBtn, pauseConceptBtn, pauseFsBtn;
 
   // Level Select & Garage Elements
   let levelSelectModal, levelGridEl, levelSelectCloseBtn;
@@ -96,6 +98,17 @@ window.UIController = (function () {
     pauseResumeBtn = document.getElementById('pause-resume-btn');
     pauseRestartBtn = document.getElementById('pause-restart-btn');
     pauseQuitBtn = document.getElementById('pause-quit-btn');
+
+    pauseMuteBtn = document.getElementById('pause-mute-btn');
+    pauseGfxBtn = document.getElementById('pause-gfx-btn');
+    pauseAutopilotBtn = document.getElementById('pause-autopilot-btn');
+    pauseRecenterBtn = document.getElementById('pause-recenter-btn');
+    pauseConceptBtn = document.getElementById('pause-concept-btn');
+    pauseFsBtn = document.getElementById('pause-fs-btn');
+
+    parkingDevModal = document.getElementById('parking-dev-modal');
+    parkingDevCloseBtn = document.getElementById('parking-dev-close-btn');
+    parkingDevPlayBtn = document.getElementById('parking-dev-play-btn');
 
     // 4. Stunt & Readout Elements
     scoreEl = document.getElementById('score-value');
@@ -181,10 +194,22 @@ window.UIController = (function () {
       });
     }
 
-    // Parking Mode -> Opens Level Select
+    // Parking Mode -> Opens Not Ready Modal
     if (parkingModeBtn) {
       parkingModeBtn.addEventListener('click', () => {
-        showLevelSelect();
+        showParkingDevModal();
+      });
+    }
+
+    if (parkingDevCloseBtn) {
+      parkingDevCloseBtn.addEventListener('click', hideParkingDevModal);
+    }
+
+    if (parkingDevPlayBtn) {
+      parkingDevPlayBtn.addEventListener('click', () => {
+        hideParkingDevModal();
+        if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+        window.GameState.set(window.GameState.STATES.PLAYING_DASH);
       });
     }
 
@@ -256,6 +281,49 @@ window.UIController = (function () {
           if (cbRetryParking) cbRetryParking();
         } else {
           if (cbRestartDash) cbRestartDash();
+        }
+      });
+    }
+
+    // Pause Quick Settings (Accessible via Pause Modal on Mobile & Desktop)
+    if (pauseMuteBtn) {
+      pauseMuteBtn.addEventListener('click', () => {
+        window.SoundFX.toggleMute();
+        updateMuteBtn();
+        updatePauseSettingsUI();
+      });
+    }
+    if (pauseGfxBtn) {
+      pauseGfxBtn.addEventListener('click', () => {
+        const next = qualityTier === 'HIGH' ? 'ULTRA' : (qualityTier === 'ULTRA' ? 'MOBILE' : 'HIGH');
+        setQuality(next, onQualityChange);
+        updatePauseSettingsUI();
+      });
+    }
+    if (pauseAutopilotBtn) {
+      pauseAutopilotBtn.addEventListener('click', () => {
+        toggleAutopilot();
+        updatePauseSettingsUI();
+      });
+    }
+    if (pauseRecenterBtn) {
+      pauseRecenterBtn.addEventListener('click', () => {
+        if (onRecenter) onRecenter();
+        resumeGame();
+      });
+    }
+    if (pauseConceptBtn) {
+      pauseConceptBtn.addEventListener('click', () => {
+        cycleConceptMode();
+        updatePauseSettingsUI();
+      });
+    }
+    if (pauseFsBtn) {
+      pauseFsBtn.addEventListener('click', () => {
+        if (document.fullscreenElement) {
+          document.exitFullscreen().catch(() => {});
+        } else {
+          document.documentElement.requestFullscreen().catch(() => {});
         }
       });
     }
@@ -344,22 +412,7 @@ window.UIController = (function () {
 
     // Concept Camera Mode Switcher
     if (conceptBtn) {
-      conceptBtn.addEventListener('click', () => {
-        conceptMode = (conceptMode + 1) % 4;
-        if (conceptMode === 0) {
-          conceptBtn.textContent = '📷 Concept Cam';
-          conceptBtn.classList.remove('active');
-          if (conceptBanner) conceptBanner.style.display = 'none';
-        } else {
-          conceptBtn.textContent = `📷 Concept #${conceptMode}/3`;
-          conceptBtn.classList.add('active');
-          if (conceptBanner) {
-            conceptBanner.style.display = 'block';
-            conceptTitle.textContent = config.conceptPresets[conceptMode].title;
-            conceptDesc.textContent = config.conceptPresets[conceptMode].desc;
-          }
-        }
-      });
+      conceptBtn.addEventListener('click', cycleConceptMode);
     }
 
     // Listen to GameState transitions to update DOM visibility
@@ -594,7 +647,57 @@ window.UIController = (function () {
     }
   }
 
+  function cycleConceptMode() {
+    conceptMode = (conceptMode + 1) % 4;
+    if (conceptMode === 0) {
+      if (conceptBtn) {
+        conceptBtn.textContent = '📷 Concept Cam';
+        conceptBtn.classList.remove('active');
+      }
+      if (conceptBanner) conceptBanner.style.display = 'none';
+    } else {
+      if (conceptBtn) {
+        conceptBtn.textContent = `📷 Concept #${conceptMode}/3`;
+        conceptBtn.classList.add('active');
+      }
+      if (conceptBanner) {
+        conceptBanner.style.display = 'block';
+        conceptTitle.textContent = config.conceptPresets[conceptMode].title;
+        conceptDesc.textContent = config.conceptPresets[conceptMode].desc;
+      }
+    }
+  }
+
+  function updatePauseSettingsUI() {
+    if (pauseMuteBtn) {
+      pauseMuteBtn.textContent = window.SoundFX && window.SoundFX.isMuted() ? '🔇 Audio: OFF' : '🔊 Audio: ON';
+    }
+    if (pauseGfxBtn) {
+      pauseGfxBtn.textContent = `✨ GFX: ${qualityTier}`;
+    }
+    if (pauseAutopilotBtn) {
+      const isAuto = window.AutopilotAI ? window.AutopilotAI.isEnabled() : false;
+      pauseAutopilotBtn.textContent = isAuto ? '🤖 AI Auto: ON' : '🤖 AI Auto: OFF';
+      if (isAuto) pauseAutopilotBtn.classList.add('active');
+      else pauseAutopilotBtn.classList.remove('active');
+    }
+    if (pauseConceptBtn) {
+      pauseConceptBtn.textContent = conceptMode === 0 ? '📷 Concept Cam' : `📷 Concept #${conceptMode}/3`;
+      if (conceptMode > 0) pauseConceptBtn.classList.add('active');
+      else pauseConceptBtn.classList.remove('active');
+    }
+  }
+
+  function showParkingDevModal() {
+    if (parkingDevModal) parkingDevModal.style.display = 'flex';
+  }
+
+  function hideParkingDevModal() {
+    if (parkingDevModal) parkingDevModal.style.display = 'none';
+  }
+
   function showPause() {
+    updatePauseSettingsUI();
     if (pauseModal) pauseModal.style.display = 'flex';
   }
 
