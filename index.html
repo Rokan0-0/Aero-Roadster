@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Aero Roadster — Coastal Sunset 3D (v2 PC + Mobile)</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- Mobile Portrait Rotate Prompt -->
+  <div id="rotate-overlay">
+    <div class="phone-icon"></div>
+    <h2>Rotate to Landscape</h2>
+    <p>Aero Roadster is built for widescreen landscape play.</p>
+    <button class="fullscreen-btn" id="lock-landscape-btn">Tap for Fullscreen Landscape</button>
+  </div>
+
+  <!-- 3D WebGL Canvas & Effects -->
+  <canvas id="game-canvas"></canvas>
+  <div id="fx-overlay"></div>
+  <div id="speed-lines"></div>
+
+  <!-- =====================================================================
+       1. START LOBBY SCREEN
+       ===================================================================== -->
+  <div id="lobby-screen">
+    <div class="lobby-left">
+      <div class="lobby-brand">
+        <div class="brand-sub">COASTAL SUNSET 3D</div>
+        <h1>Aero<br/>Roadster</h1>
+      </div>
+
+      <button class="lobby-btn-primary" id="play-dash-btn">
+        <span>Play Dash</span>
+        <small>ENDLESS RUN</small>
+      </button>
+
+      <button class="lobby-btn-secondary" id="parking-mode-btn">
+        <span>Thruster Parking</span>
+        <small>LEVELS 1–6</small>
+      </button>
+
+      <button class="lobby-btn-secondary" id="garage-btn">
+        <span>Garage</span>
+        <small>CARS & STATS</small>
+      </button>
+
+      <div class="lobby-menu-row">
+        <button class="lobby-btn-ghost" id="leaderboard-btn">Ranks</button>
+        <button class="lobby-btn-ghost" id="settings-btn">Settings</button>
+        <button class="lobby-btn-ghost" id="about-btn">About</button>
+      </div>
+    </div>
+
+    <div class="legal-disclaimer">
+      Independent fan game. Not affiliated with Tesla, Inc.
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       2. ARCADE STUNT & SCORE HUD (Active in Gameplay)
+       ===================================================================== -->
+  <div id="hud">
+    <div id="top-left-bar">
+      <div id="speed-readout"><span id="speed-num">184</span> <small>MPH</small></div>
+      <div id="distance-readout"><span id="dist-num">0</span> <small>M</small></div>
+      <div id="hull-bar-wrap">
+        <div class="hull-header">
+          <span>HULL INTEGRITY</span>
+          <span id="hull-pct">100%</span>
+        </div>
+        <div id="hull-bar-outer"><div id="hull-fill"></div></div>
+      </div>
+      <div id="aero-status">LANE ASSIST: LOCKED</div>
+    </div>
+
+    <div id="top-score-panel">
+      <div id="score-value">0</div>
+      <div id="streak-row"><span id="streak-mult">x1</span> STREAK <span id="streak-count">1</span></div>
+      <div id="streak-bar-wrap"><div id="streak-bar-fill"></div></div>
+      <div id="pending-points"></div>
+      <div id="stunt-feed"></div>
+    </div>
+
+    <div id="active-item-badge"></div>
+    <div id="parking-hud-pill">🎯 FLY TO BAY</div>
+
+    <div id="top-right-controls">
+      <button class="hud-btn" id="pause-btn">⏸️ Pause</button>
+      <button class="hud-btn" id="mute-btn">🔊 Audio: ON</button>
+      <button class="hud-btn" id="gfx-btn">✨ GFX: HIGH</button>
+      <button class="hud-btn" id="recenter-btn">🎯 Center</button>
+      <button class="hud-btn" id="concept-cam-btn">📷 Concept Cam</button>
+      <button class="hud-btn" id="fs-btn">⛶</button>
+    </div>
+
+    <div id="concept-banner">
+      <h4 id="concept-title">Concept Render 1: Golden Hour Barrel Roll</h4>
+      <p id="concept-desc">Tap "Concept Cam" again to cycle angle or return to live driving.</p>
+    </div>
+
+    <div id="bottom-air-bar-container">
+      <div class="air-header">
+        <span>COLD-GAS AIR THRUST</span>
+        <span id="fuel-pct">100%</span>
+      </div>
+      <div id="air-bar-outer">
+        <div id="air-bar-inner"></div>
+      </div>
+      <div id="controls-hint">WASD/Pad: Steer & Air Roll • Space/LIFT: Thruster Jump • Shift/BOOST: Cryo Boost • C/SLAM: Drop</div>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       3. DUAL-THUMB MOBILE TOUCH CONTROLS
+       ===================================================================== -->
+  <div id="touch-controls">
+    <div id="left-pad">
+      <span id="left-pad-label">STEER / AIR ROLL</span>
+      <div class="pad-axis-h"></div>
+      <div class="pad-axis-v"></div>
+      <div id="stick-nub"></div>
+    </div>
+
+    <div id="right-cluster">
+      <div class="action-btn" id="btn-lift">LIFT<small>AIR JUMP</small></div>
+      <div class="action-btn" id="btn-slam">SLAM<small>DROP</small></div>
+      <div class="action-btn" id="btn-boost">BOOST<small>COLD-GAS</small></div>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       4. PAUSE MENU MODAL
+       ===================================================================== -->
+  <div id="pause-modal">
+    <div class="pause-card">
+      <h2>Game Paused</h2>
+      <button class="pause-btn primary" id="pause-resume-btn">Resume</button>
+      <button class="pause-btn" id="pause-restart-btn">Restart Run</button>
+      <button class="pause-btn danger" id="pause-quit-btn">Quit to Lobby</button>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       5. GAME OVER RUN SUMMARY MODAL (DASH MODE)
+       ===================================================================== -->
+  <div id="game-over-modal">
+    <div class="go-card">
+      <h2>Crash & Burn!</h2>
+      <div class="go-subtitle">Roadster Dash: Coastal Run Summary</div>
+      <div class="go-stats-grid">
+        <div class="go-stat-box">
+          <div class="label">Distance</div>
+          <div class="val" id="go-dist">0 m</div>
+        </div>
+        <div class="go-stat-box">
+          <div class="label">Total Score</div>
+          <div class="val" id="go-score">0</div>
+        </div>
+        <div class="go-stat-box highlight">
+          <div class="label">Best Distance</div>
+          <div class="val" id="go-best-dist">0 m</div>
+        </div>
+        <div class="go-stat-box highlight">
+          <div class="label">Best Score</div>
+          <div class="val" id="go-best-score">0</div>
+        </div>
+      </div>
+      <button class="retry-btn" id="retry-btn">Tap or Press Space to Retry</button>
+      <button class="pause-btn danger" id="go-lobby-btn" style="margin-top: 10px; width: 100%;">Quit to Lobby</button>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       6. PARKING RESULT MODAL & STAR RATING
+       ===================================================================== -->
+  <div id="result-modal">
+    <div class="result-card">
+      <h2 id="result-title">Parked!</h2>
+      <div class="result-subtitle" id="result-level-name">Level 1: Open Coastal Lot</div>
+
+      <div class="star-rating-row" id="result-stars">
+        <span class="star" id="star-1">★</span>
+        <span class="star" id="star-2">★</span>
+        <span class="star" id="star-3">★</span>
+      </div>
+
+      <div class="go-stats-grid">
+        <div class="go-stat-box">
+          <div class="label">Time</div>
+          <div class="val" id="result-time">0.0s</div>
+        </div>
+        <div class="go-stat-box">
+          <div class="label">Par Time</div>
+          <div class="val" id="result-par">20s</div>
+        </div>
+        <div class="go-stat-box">
+          <div class="label">Gas Left</div>
+          <div class="val" id="result-gas">100%</div>
+        </div>
+        <div class="go-stat-box highlight">
+          <div class="label">Hull Integrity</div>
+          <div class="val" id="result-hull">100%</div>
+        </div>
+      </div>
+
+      <div class="result-btn-row">
+        <button class="result-btn" id="result-retry-btn">Retry</button>
+        <button class="result-btn primary" id="result-next-btn">Next Level</button>
+        <button class="result-btn" id="result-lobby-btn">Lobby</button>
+        <button class="result-btn share" id="result-share-btn">📋 Share Record</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       7. LEVEL SELECT MODAL (PARKING MODE)
+       ===================================================================== -->
+  <div id="level-select-modal">
+    <div class="level-select-card">
+      <h2>Select Parking Level</h2>
+      <div class="level-grid" id="level-grid"></div>
+      <button class="pause-btn danger" id="level-select-close-btn" style="width: 100%; margin-top: 6px;">Back to Lobby</button>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       8. GARAGE CAR CAROUSEL & STATS MODAL
+       ===================================================================== -->
+  <div id="garage-modal">
+    <div class="garage-card">
+      <h2>Vehicle Garage</h2>
+      <div class="garage-subtitle">Flight Chassis Selection</div>
+
+      <div class="car-carousel-header">
+        <button class="carousel-nav-btn" id="garage-prev-btn">&lt;</button>
+        <div class="car-display-name" id="garage-car-name">Aero Dash</div>
+        <button class="carousel-nav-btn" id="garage-next-btn">&gt;</button>
+      </div>
+
+      <div class="car-desc" id="garage-car-desc">Balanced coastal roadster with cryogenic flight thrusters.</div>
+
+      <div class="car-stats-grid">
+        <div class="stat-row">
+          <span>Thruster Power</span>
+          <div class="stat-bar-outer"><div class="stat-bar-fill" id="garage-stat-thruster" style="width: 65%;"></div></div>
+        </div>
+        <div class="stat-row">
+          <span>Hull Durability</span>
+          <div class="stat-bar-outer"><div class="stat-bar-fill" id="garage-stat-durability" style="width: 62%;"></div></div>
+        </div>
+        <div class="stat-row">
+          <span>Gas Capacity</span>
+          <div class="stat-bar-outer"><div class="stat-bar-fill" id="garage-stat-gas" style="width: 75%;"></div></div>
+        </div>
+        <div class="stat-row">
+          <span>Agility / Mass</span>
+          <div class="stat-bar-outer"><div class="stat-bar-fill" id="garage-stat-agility" style="width: 70%;"></div></div>
+        </div>
+      </div>
+
+      <div class="garage-actions">
+        <button class="pause-btn primary" id="garage-select-btn" style="flex: 1;">Select Vehicle</button>
+        <button class="pause-btn danger" id="garage-close-btn" style="width: 100px;">Back</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="share-toast">Record copied to clipboard!</div>
+
+  <!-- Three.js Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <!-- Modular Game Architecture -->
+  <script src="js/state.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/textures.js"></script>
+  <script src="js/cars_data.js"></script>
+  <script src="js/world.js"></script>
+  <script src="js/car.js"></script>
+  <script src="js/particles.js"></script>
+  <script src="js/items.js"></script>
+  <script src="js/traffic.js"></script>
+  <script src="js/levels.js"></script>
+  <script src="js/parking.js"></script>
+  <script src="js/input.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
